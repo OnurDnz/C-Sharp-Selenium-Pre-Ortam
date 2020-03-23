@@ -1,0 +1,10 @@
+>
+5C:\Users\onurd\source\repos\Simple\Simple\BaseTest.csutf-8D
+;C:\Users\onurd\source\repos\Simple\Simple\BrowserFactory.csutf-8?
+6C:\Users\onurd\source\repos\Simple\Simple\ExcelTool.csutf-8C
+:C:\Users\onurd\source\repos\Simple\Simple\LoginPageTest.csutf-8D
+;C:\Users\onurd\source\repos\Simple\Simple\Pages\MainPage.csutf-8M
+DC:\Users\onurd\source\repos\Simple\Simple\Properties\AssemblyInfo.csutf-8N
+EC:\Users\onurd\source\repos\Simple\Simple\Utilities\TakeScreenshot.csutf-8N
+EC:\Users\onurd\source\repos\Simple\Simple\Utilities\WaitUntillFind.csutf-8_
+TC:\Users\onurd\AppData\Local\Temp\.NETFramework,Version=v4.7.2.AssemblyAttributes.csutf-8
