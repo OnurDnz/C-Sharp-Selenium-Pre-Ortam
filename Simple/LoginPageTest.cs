@@ -24,5 +24,10 @@ namespace Simple
             mainPage.firstResult.SendKeys("Deneme");
             mainPage.secondResult.Click();
         }
+        [Test]
+        public void Third()
+        {
+            var a = ExcelTool.SetCellData("DataSet","",4,"");
+        }
     }
 }

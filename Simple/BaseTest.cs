@@ -1,16 +1,19 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
+using ReportingLibrary;
+using SeleniumHelperLibrary;
 using Simple.Utilities;
+using System;
 
 namespace Simple
 {
     public class BaseTest : BrowserFactory
     {
-        internal ExcelTool Excel { get; set; }
-
         string xlFilePath = @"C:\Users\onurd\source\repos\Simple\Simple\TestData.xlsx";
+        protected ExtentReportsHelper extent;
 
         [SetUp]
         public void SetUp()
@@ -18,57 +21,61 @@ namespace Simple
             InitBrowser("Firefox");
             WaitClass.Driver = driver;
             driver.Manage().Window.Maximize();
-            Excel = new ExcelTool(xlFilePath);
+            extent.CreateTest(TestContext.CurrentContext.Test.Name);
+            ExcelTool.ExcelFilePath = xlFilePath;
+        }
+
+        [OneTimeSetUp]
+        public void SetUpReporter()
+        {
+            extent = new ExtentReportsHelper();
         }
 
         [TearDown]
-        public void TearDown()
+        public void AfterTest()
         {
-            TakeScreenshot.Take(driver);
-            driver.Quit();
-            //WriteTestStatus();
-        }
-
-        public void WriteTestStatus()
-        {
-            if (TestContext.CurrentContext.Result.FailCount == 0)
+            try
             {
-                FindUntillToNullCell(2, Status.Passed);
-            }
-            else
-            {
-                FindUntillToNullCell(2, Status.Failed);
-            }
-
-        }
-
-        public void FindUntillToNullCell(int colNum, Status status)
-        {
-            bool flag = true;
-            while (flag)
-            {
-                if (Excel.GetCellData("DataSet", 5, colNum) == null)
+                var status = TestContext.CurrentContext.Result.Outcome.Status;
+                var stacktrace = TestContext.CurrentContext.Result.StackTrace;
+                var errorMessage = "<pre>" + TestContext.CurrentContext.Result.Message + "</pre>";
+                switch (status)
                 {
-                    Excel.SetCellData("DataSet", "TestName", colNum, $"{TestContext.CurrentContext.Test.MethodName}");
-                    if (status == Status.Passed)
-                    {
-                        Excel.SetCellData("DataSet", "Result", colNum, status.ToString());
-                        Excel.FillPassed("E" + colNum, "E" + colNum);
-                    }
-                    else
-                    {
-                        Excel.SetCellData("DataSet", "Result", colNum, status.ToString());
-                        Excel.FillFailed("E" + colNum, "E" + colNum);
-                    }
-                    flag = false;
+                    case TestStatus.Failed:
+                        extent.SetTestStatusFail($"<br>{errorMessage}<br>Stack Trace: <br>{stacktrace}<br>");
+                        TakeScreenshot.Take(driver);
+                        break;
+                    case TestStatus.Skipped:
+                        extent.SetTestStatusSkipped();
+                        break;
+                    default:
+                        extent.SetTestStatusPass();
+                        TakeScreenshot.Take(driver);
+                        break;
                 }
-                colNum++;
+            }
+            catch (Exception e)
+            {
+                throw (e);
+            }
+            finally
+            {
+                driver.Quit();
             }
         }
-        public enum Status
+
+
+        [OneTimeTearDown]
+        public void CloseAll()
         {
-            Passed,
-            Failed
+            try
+            {
+                extent.Close();
+            }
+            catch (Exception e)
+            {
+                throw (e);
+            }
         }
     }
 }

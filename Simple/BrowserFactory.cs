@@ -11,7 +11,7 @@ namespace Simple
     public class BrowserFactory
     {
         private static readonly IDictionary<string, IWebDriver> Drivers = new Dictionary<string, IWebDriver>();
-        internal static IWebDriver driver;
+        public static IWebDriver driver;
 
         public static IWebDriver Driver { get; private set; }
 

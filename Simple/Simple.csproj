@@ -154,7 +154,18 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Reports\" />
     <Folder Include="Screenshots\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ReportingLibrary\ReportingLibrary.csproj">
+      <Project>{B38B04B2-AF51-4DC7-B575-149C814552F5}</Project>
+      <Name>ReportingLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SeleniumHelperLibrary\SeleniumHelperLibrary.csproj">
+      <Project>{c0efc47b-5fed-413b-b8fd-6bbd812c1074}</Project>
+      <Name>SeleniumHelperLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

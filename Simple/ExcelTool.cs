@@ -1,4 +1,5 @@
 ﻿using Microsoft.Office.Interop.Excel;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,28 +8,20 @@ using xl = Microsoft.Office.Interop.Excel;
 
 namespace Simple
 {
-    class ExcelTool
+    public static class ExcelTool
     {
-        //Bu sınıf static yapılacak
+        private static Application xlApp = null;
+        private static Workbooks workbooks = null;
+        private static Workbook workbook = null;
+        private static Range range;
+        private static Hashtable sheets;
+        public static string ExcelFilePath { get; set; }
 
-        Application xlApp = null;
-        Workbooks workbooks = null;
-        Workbook workbook = null;
-        Range range;
-        Hashtable sheets;
-        public string xlFilePath;
-        public ExcelTool Eat { get; set; }
-
-        public ExcelTool(string xlFilePath)
-        {
-            this.xlFilePath = xlFilePath;
-        }
-
-        public void OpenExcel()
+        private static void OpenExcel()
         {
             xlApp = new Application();
             workbooks = xlApp.Workbooks;
-            workbook = workbooks.Open(xlFilePath);
+            workbook = workbooks.Open(ExcelFilePath);
             sheets = new Hashtable();
             int count = 1;
             // Storing worksheet names in Hashtable.
@@ -38,26 +31,10 @@ namespace Simple
                 count++;
             }
         }
-        public void FillPassed(object cell1, object cell2)
+        private static void CloseExcel()
         {
-            OpenExcel();
-            range = xlApp.get_Range(cell1, cell2);
-            range.Interior.Color = xl.XlRgbColor.rgbLightGreen;
-            workbook.Save();
-            CloseExcel();
-        }
-        public void FillFailed(object cell1, object cell2)
-        {
-            OpenExcel();
-            range = xlApp.get_Range(cell1, cell2);
-            range.Interior.Color = xl.XlRgbColor.rgbRed;
-            workbook.Save();
-            CloseExcel();
-        }
-        public void CloseExcel()
-        {
-            workbook.Close(false, xlFilePath, null); // Close the connection to workbook
-            Marshal.FinalReleaseComObject(workbook); // Release unmanaged object references.
+            workbook.Close(false, ExcelFilePath, null);
+            Marshal.FinalReleaseComObject(workbook);
             workbook = null;
 
             workbooks.Close();
@@ -68,7 +45,23 @@ namespace Simple
             Marshal.FinalReleaseComObject(xlApp);
             xlApp = null;
         }
-        public string GetCellData(string sheetName, int colNumber, int rowNumber)
+        public static void FillPassed(object cell1, object cell2)
+        {
+            OpenExcel();
+            range = xlApp.get_Range(cell1, cell2);
+            range.Interior.Color = xl.XlRgbColor.rgbLightGreen;
+            workbook.Save();
+            CloseExcel();
+        }
+        public static void FillFailed(object cell1, object cell2)
+        {
+            OpenExcel();
+            range = xlApp.get_Range(cell1, cell2);
+            range.Interior.Color = xl.XlRgbColor.rgbRed;
+            workbook.Save();
+            CloseExcel();
+        }
+        public static string GetCellData(string sheetName, int colNumber, int rowNumber)
         {
             OpenExcel();
 
@@ -95,7 +88,7 @@ namespace Simple
             CloseExcel();
             return value;
         }
-        public bool SetCellData(string sheetName, string colName, int rowNumber, string value)
+        public static bool SetCellData(string sheetName, string colName, int rowNumber, string value)
         {
             OpenExcel();
 
@@ -136,13 +129,13 @@ namespace Simple
                     CloseExcel();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
             return true;
         }
-        public List<string> GetAll(int sheetİndex)
+        public static List<string> GetAll(int sheetİndex)
         {
             int rCnt, cCnt, rw = 0, cl = 0;
             List<string> cellDataList = new List<string>();
@@ -167,8 +160,7 @@ namespace Simple
             CloseExcel();
             return cellDataList;
         }
-
-        public List<string> GetMultipleCells(int sheetİndex, string startCell, string endCell)
+        public static List<string> GetMultipleCells(int sheetİndex, string startCell, string endCell)
         {
             List<string> cellDataList = new List<string>();
 
@@ -186,6 +178,47 @@ namespace Simple
             }
             CloseExcel();
             return cellDataList;
+        }
+        public static void WriteTestStatus()
+        {
+            if (TestContext.CurrentContext.Result.FailCount == 0)
+            {
+                FindUntillToNullCell(2,5, Status.Passed);
+            }
+            else
+            {
+                FindUntillToNullCell(2,5, Status.Failed);
+            }
+
+        }
+
+        public static void FindUntillToNullCell(int colNum,int rowName, Status status)
+        {
+            bool flag = true;
+            while (flag)
+            {
+                if (GetCellData("DataSet", rowName, colNum) == null)
+                {
+                    SetCellData("DataSet", "TestName", colNum, $"{TestContext.CurrentContext.Test.MethodName}");
+                    if (status == Status.Passed)
+                    {
+                        SetCellData("DataSet", "Result", colNum, status.ToString());
+                        FillPassed("E" + colNum, "E" + colNum);
+                    }
+                    else
+                    {
+                        SetCellData("DataSet", "Result", colNum, status.ToString());
+                        FillFailed("E" + colNum, "E" + colNum);
+                    }
+                    flag = false;
+                }
+                colNum++;
+            }
+        }
+        public enum Status
+        {
+            Passed,
+            Failed
         }
     }
 }
