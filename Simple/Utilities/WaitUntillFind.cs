@@ -10,11 +10,11 @@ namespace Simple.Utilities
     {
         public static IWebDriver Driver { get; set; }
 
-        public static IWebElement WaitUntillFind(By locator, int timeoutInSeconds = 10)
+        public static IWebElement WaitUntilFind(By elementLocatorType)
         {
             try
             {
-                WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
                 wait.IgnoreExceptionTypes(
                    typeof(NotFoundException),
                    typeof(NoSuchElementException),
@@ -22,9 +22,9 @@ namespace Simple.Utilities
                    typeof(StaleElementReferenceException),
                    typeof(ElementNotInteractableException)
                 );
-                var result = wait.Until(x => x.FindElement(locator));
-                wait.Until(ExpectedConditions.ElementToBeClickable(result));
-                return result;
+                var foundElement = wait.Until(x => x.FindElement(elementLocatorType));
+                wait.Until(ExpectedConditions.ElementToBeClickable(foundElement));
+                return foundElement;
             }
             catch (Exception e)
             {
@@ -32,11 +32,19 @@ namespace Simple.Utilities
                 return null;
             }
         }
-        public static IWebElement WaitUntillFind(this IWebElement element, By locator, int timeoutInSeconds = 10)
+
+        /// <summary>
+        /// Wait until find function
+        /// </summary>
+        /// <param name="elementLocatorType">Extension parameter</param>
+        /// <param name="locator">Search for element location type</param>
+        /// <param name="timeoutInSeconds">Variable is wait value of the function that wait until find element</param>
+        /// <returns></returns>
+        public static IWebElement WaitUntilFind(this IWebElement elementLocatorType, By locator)
         {
             try
             {
-                WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
                 wait.IgnoreExceptionTypes(
                    typeof(NotFoundException),
                    typeof(NoSuchElementException),
@@ -44,10 +52,9 @@ namespace Simple.Utilities
                    typeof(StaleElementReferenceException),
                    typeof(ElementNotInteractableException)
                 );
-                var a = wait.Until(x => x.FindElement(locator));
-                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(locator));
-                wait.Until(ExpectedConditions.ElementToBeClickable(locator)).Click();
-                return a;
+                var foundElement = wait.Until(x => x.FindElement(locator));
+                wait.Until(ExpectedConditions.ElementToBeClickable(foundElement));
+                return foundElement;
             }
             catch (Exception e)
             {

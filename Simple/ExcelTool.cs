@@ -45,7 +45,7 @@ namespace Simple
             Marshal.FinalReleaseComObject(xlApp);
             xlApp = null;
         }
-        public static void FillPassed(object cell1, object cell2)
+        public static void PaintToGreen(object cell1, object cell2)
         {
             OpenExcel();
             range = xlApp.get_Range(cell1, cell2);
@@ -53,7 +53,7 @@ namespace Simple
             workbook.Save();
             CloseExcel();
         }
-        public static void FillFailed(object cell1, object cell2)
+        public static void PaintToRed(object cell1, object cell2)
         {
             OpenExcel();
             range = xlApp.get_Range(cell1, cell2);
@@ -183,16 +183,16 @@ namespace Simple
         {
             if (TestContext.CurrentContext.Result.FailCount == 0)
             {
-                FindUntillToNullCell(2,5, Status.Passed);
+                MoveDownUntilToFindEmptyCell(2,5, Status.Passed);
             }
             else
             {
-                FindUntillToNullCell(2,5, Status.Failed);
+                MoveDownUntilToFindEmptyCell(2,5, Status.Failed);
             }
 
         }
 
-        public static void FindUntillToNullCell(int colNum,int rowName, Status status)
+        public static void MoveDownUntilToFindEmptyCell(int colNum,int rowName, Status status)
         {
             bool flag = true;
             while (flag)
@@ -203,12 +203,12 @@ namespace Simple
                     if (status == Status.Passed)
                     {
                         SetCellData("DataSet", "Result", colNum, status.ToString());
-                        FillPassed("E" + colNum, "E" + colNum);
+                        PaintToGreen("E" + colNum, "E" + colNum);
                     }
                     else
                     {
                         SetCellData("DataSet", "Result", colNum, status.ToString());
-                        FillFailed("E" + colNum, "E" + colNum);
+                        PaintToRed("E" + colNum, "E" + colNum);
                     }
                     flag = false;
                 }

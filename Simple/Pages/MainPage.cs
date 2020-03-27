@@ -1,11 +1,13 @@
 ﻿using OpenQA.Selenium;
+using SeleniumExtras.PageObjects;
 using Simple.Utilities;
 
 namespace Simple.Pages
 {
-    public class MainPage
+    [CacheLookup]
+    public static class MainPage
     {
-        public IWebElement firstResult => WaitClass.WaitUntillFind(By.Name("q"));
-        public IWebElement secondResult => WaitClass.WaitUntillFind(By.Name("btnK"));
+        public static IWebElement firstResult => WaitClass.WaitUntilFind(By.Name("q"));
+        public static IWebElement secondResult => WaitClass.WaitUntilFind(By.Name("btnK"));
     }
 }
